@@ -1,58 +1,219 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Button Pop Game (Bootstrap)</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    :root { --cell-size: 90px; }
+    body { background: #0f172a; color: #e2e8f0; }
+    .game-card { background: #111827; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, var(--cell-size));
+      grid-template-rows: repeat(3, var(--cell-size));
+      gap: 14px;
+      justify-content: center;
+      user-select: none;
+    }
+    .cell {
+      position: relative;
+      width: var(--cell-size);
+      height: var(--cell-size);
+      border-radius: 16px;
+      display: grid; place-items: center;
+      overflow: hidden;
+    }
+    .pop-btn {
+      position: absolute;
+      transform: scale(0.6);
+      opacity: 0;
+      transition: transform 140ms ease, opacity 140ms ease;
+      pointer-events: auto;
+    }
+    .pop-btn.show { opacity: 1; transform: scale(1); }
+    .pop-btn.hide { opacity: 0; transform: scale(0.8); }
+    .stat { font-variant-numeric: tabular-nums; }
+    .badge-soft { background: rgba(99, 102, 241, 0.15); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.35); }
+  </style>
 </head>
-
 <body>
-    <header>
-        <div class="px-3 py-2 text-bg-dark border-bottom">
-            <div class="container">
-                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                    <a href="/"
-                        class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
-                        <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-                            <use xlink:href="#bootstrap">
-
-                            </use>
-                        </svg> </a>
-                    <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
-                        <li>
-                            <a href="index.html" class="nav-link text-white"> <svg class="bi d-block mx-auto mb-1" width="24"
-                                    height="24" aria-hidden="true">
-                                    <use xlink:href="#home"></use>
-                                </svg>
-                                Home
-                            </a>
-                        </li>
-                        <li> <a href="information.html" class="nav-link text-white"> <svg class="bi d-block mx-auto mb-1" width="24"
-                                    height="24" aria-hidden="true">
-                                    <use xlink:href="information.html"></use>
-                                </svg>
-                                Information
-                            </a> </li>
-                        <li> <a href="game.html" class="nav-link text-secondary"> <svg class="bi d-block mx-auto mb-1" width="24"
-                                    height="24" aria-hidden="true">
-                                    <use xlink:href="#table"></use>
-                                </svg>
-                                Game
-                            </a> </li>
-                    </ul>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card game-card rounded-4">
+          <div class="card-body p-4 p-lg-5">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <span class="badge badge-soft rounded-pill px-3 py-2">Bootstrap</span>
+                <h1 class="h4 m-0">Button Pop</h1>
+              </div>
+              <div class="d-flex align-items-center gap-3">
+                <div class="text-center">
+                  <div class="small text-secondary">Score</div>
+                  <div id="score" class="h4 stat m-0">0</div>
                 </div>
+                <div class="vr"></div>
+                <div class="text-center">
+                  <div class="small text-secondary">Time</div>
+                  <div id="time" class="h4 stat m-0">30</div>
+                </div>
+                <div class="vr"></div>
+                <div class="text-center">
+                  <div class="small text-secondary">Hits</div>
+                  <div id="hits" class="h6 stat m-0">0</div>
+                </div>
+              </div>
             </div>
-        </div>
-        <div class="px-3 py-2 border-bottom mb-3">
-            <div class="container d-flex flex-wrap justify-content-center">
-                <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto" role="search"> <input type="search"
-                        class="form-control" placeholder="Search..." aria-label="Search"> </form>
+
+            <div class="d-flex justify-content-center gap-2 mb-4">
+              <button id="startBtn" class="btn btn-success btn-lg">Start</button>
+              <button id="resetBtn" class="btn btn-outline-light btn-lg" disabled>Reset</button>
+              <select id="speed" class="form-select w-auto">
+                <option value="900">Normal</option>
+                <option value="700">Fast</option>
+                <option value="500">Insane</option>
+              </select>
             </div>
+
+            <div id="grid" class="grid mb-3"></div>
+
+            <p class="text-secondary small m-0 text-center">Tap the popping buttons before they disappear. Change speed to make it harder.</p>
+          </div>
         </div>
-    </header>
+      </div>
+    </div>
+  </div>
+
+  <audio id="clickSound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg" preload="auto"></audio>
+
+  <script>
+    const GRID_COLS = 4, GRID_ROWS = 3;
+    const gridEl = document.getElementById('grid');
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+    const hitsEl = document.getElementById('hits');
+    const startBtn = document.getElementById('startBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const speedSel = document.getElementById('speed');
+    const clickSound = document.getElementById('clickSound');
+
+    // build cells
+    const totalCells = GRID_COLS * GRID_ROWS;
+    const cells = [];
+    for (let i = 0; i < totalCells; i++) {
+      const c = document.createElement('div');
+      c.className = 'cell';
+      c.dataset.index = i;
+      gridEl.appendChild(c);
+      cells.push(c);
+    }
+
+    let score = 0, hits = 0, timeLeft = 30, gameTimer = null, spawnTimer = null, activeBtn = null, gameActive = false;
+
+    function setScore(val) { score = val; scoreEl.textContent = score; }
+    function setHits(val) { hits = val; hitsEl.textContent = hits; }
+    function setTime(val) { timeLeft = val; timeEl.textContent = timeLeft; }
+
+    function pickCell() { return cells[Math.floor(Math.random() * cells.length)]; }
+
+    function spawnButton() {
+      if (activeBtn) removeButton(activeBtn, true);
+
+      const cell = pickCell();
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-warning btn-lg pop-btn';
+      btn.type = 'button';
+      btn.textContent = 'Click Me';
+
+      requestAnimationFrame(() => btn.classList.add('show'));
+
+      const lifespan = Number(speedSel.value);
+      btn._timeout = setTimeout(() => {
+        removeButton(btn);
+      }, lifespan);
+
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (!gameActive) return;
+        clearTimeout(btn._timeout);
+        btn.disabled = true;
+        btn.classList.add('hide');
+        setScore(score + 1);
+        setHits(hits + 1);
+        clickSound.currentTime = 0;
+        clickSound.play();
+        setTimeout(() => btn.remove(), 140);
+      }, { once: true });
+
+      activeBtn = btn;
+      cell.appendChild(btn);
+    }
+
+    function removeButton(btn, silent=false) {
+      if (!btn || !btn.isConnected) return;
+      btn.classList.add('hide');
+      setTimeout(() => btn.remove(), 120);
+      if (!silent) {
+        setScore(Math.max(0, score - 1));
+      }
+      activeBtn = null;
+    }
+
+    function startGame() {
+      if (gameActive) return;
+      gameActive = true;
+      setScore(0); setHits(0); setTime(30);
+      startBtn.disabled = true; resetBtn.disabled = false; speedSel.disabled = true;
+
+      gameTimer = setInterval(() => {
+        setTime(timeLeft - 1);
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+
+      spawnTimer = setInterval(spawnButton, Math.max(300, Number(speedSel.value)));
+      spawnButton();
+    }
+
+    function endGame() {
+      gameActive = false;
+      clearInterval(gameTimer); clearInterval(spawnTimer);
+      startBtn.disabled = false; resetBtn.disabled = false; speedSel.disabled = false;
+      if (activeBtn) removeButton(activeBtn, true);
+      alert(`Time!\nScore: ${score}\nHits: ${hits}`);
+    }
+
+    function resetGame() {
+      gameActive = false;
+      clearInterval(gameTimer); clearInterval(spawnTimer);
+      setScore(0); setHits(0); setTime(30);
+      startBtn.disabled = false; resetBtn.disabled = true; speedSel.disabled = false;
+      if (activeBtn) removeButton(activeBtn, true);
+      document.querySelectorAll('.pop-btn').forEach(b => b.remove());
+    }
+
+    startBtn.addEventListener('click', startGame);
+    resetBtn.addEventListener('click', resetGame);
+
+    gridEl.addEventListener('click', (e) => {
+      if (!gameActive) return;
+      const isButton = e.target.closest('.pop-btn');
+      if (!isButton) {
+        setScore(Math.max(0, score - 1));
+      }
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        if (!gameActive && startBtn.disabled === false) startGame();
+        else if (!gameActive && resetBtn.disabled === false) resetGame();
+      }
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-    <script src="game.js"></script>
 </html>
+
